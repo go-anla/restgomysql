@@ -41,13 +41,14 @@ func Handler(response http.ResponseWriter, request *http.Request) {
 
 // APIHandler Respond to URLs of the form /generic/...
 func APIHandler(response http.ResponseWriter, request *http.Request) {
-
+	log.Println("start")
 	//Connect to database
-	db, e := sql.Open("mysql", "root:root@tcp(localhost:3306)/farm")
+	db, e := sql.Open("mysql", "root:root@tcp(localhost:3306)/farm?charset=utf8")
 	if e != nil {
 		fmt.Print(e)
 	}
-
+	defer db.Close()
+	log.Println("close")
 	//set mime type to JSON
 	response.Header().Set("Content-type", "application/json")
 
@@ -83,6 +84,9 @@ func APIHandler(response http.ResponseWriter, request *http.Request) {
 			result[i] = fmt.Sprintf("%s", string(b))
 			i++
 		}
+
+		log.Println("result")
+
 		result = result[:i]
 
 	case "POST":
@@ -146,7 +150,7 @@ func APIHandler(response http.ResponseWriter, request *http.Request) {
 	// Send the text diagnostics to the client.
 	fmt.Fprintf(response, "%v", string(json))
 	//fmt.Fprintf(response, " request.URL.Path   '%v'\n", request.Method)
-	db.Close()
+	defer db.Close()
 }
 
 func main() {
